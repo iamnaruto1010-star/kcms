@@ -672,7 +672,8 @@
                         <h2 class="text-2xl font-bold">📡 监控中心</h2>
                         <p class="text-[#8b949e]">模块化监控体系 - 可独立升级配置</p>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 items-center">
+                        <span id="last-fetch-time" class="text-xs text-[#8b949e] mr-2">更新于: --:--</span>
                         <button onclick="refreshAllModules()" class="btn-secondary px-4 py-2 rounded-lg">🔄 刷新全部</button>
                         <button onclick="showModuleSettings()" class="btn-primary px-4 py-2 rounded-lg">⚙️ 模块管理</button>
                     </div>
@@ -690,21 +691,21 @@
                                     <div class="text-xs text-[#8b949e]">每小时扫描</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p0 px-2 py-1">HIGH</span>
+                            <span class="module-badge badge badge-p0 px-2 py-1">HIGH</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#238636]">🟢 正常运行</span>
+                                <span class="status-text text-[#238636]">🟢 运行中</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">上次扫描</span>
-                                <span id="p0-last-scan">16分钟前</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">今日事件</span>
-                                <span id="p0-events-count">0</span>
+                                <span>0</span>
                             </div>
                         </div>
                         
@@ -728,17 +729,17 @@
                                     <div class="text-xs text-[#8b949e]">5分钟检查</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p1 px-2 py-1">NORMAL</span>
+                            <span class="module-badge badge badge-p1 px-2 py-1">NORMAL</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">六组合状态</span>
-                                <span class="text-[#238636]">🟢 正常</span>
+                                <span class="status-text text-[#238636]">🟢 正常</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">上次检查</span>
-                                <span>3分钟前</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">风险告警</span>
@@ -766,17 +767,17 @@
                                     <div class="text-xs text-[#8b949e]">定时收集</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                            <span class="module-badge badge badge-p2 px-2 py-1">ACTIVE</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#238636]">🟢 运行中</span>
+                                <span class="status-text text-[#238636]">🟢 运行中</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-[#8b949e]">今日收集</span>
-                                <span>45条</span>
+                                <span class="text-[#8b949e]">最后更新</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">领域覆盖</span>
@@ -804,17 +805,17 @@
                                     <div class="text-xs text-[#8b949e]">15分钟更新</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                            <span class="module-badge badge badge-p2 px-2 py-1">ACTIVE</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#238636]">🟢 运行中</span>
+                                <span class="status-text text-[#238636]">🟢 运行中</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">最后更新</span>
-                                <span>8分钟前</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">分析标的</span>
@@ -842,13 +843,13 @@
                                     <div class="text-xs text-[#8b949e]">收盘后运行</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p2 px-2 py-1">IDLE</span>
+                            <span class="module-badge badge badge-p2 px-2 py-1">IDLE</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#8b949e]">⚪ 等待中</span>
+                                <span class="status-text text-[#8b949e]">⚪ 等待中</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">六组合</span>
@@ -880,21 +881,21 @@
                                     <div class="text-xs text-[#8b949e]">15分钟检查</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p1 px-2 py-1">ACTIVE</span>
+                            <span class="module-badge badge badge-p1 px-2 py-1">ACTIVE</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#238636]">🟢 运行中</span>
+                                <span class="status-text text-[#238636]">🟢 运行中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">最后更新</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">活跃任务</span>
                                 <span id="todo-active-count">2</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-[#8b949e]">今日完成</span>
-                                <span>0</span>
                             </div>
                         </div>
                         
@@ -918,17 +919,17 @@
                                     <div class="text-xs text-[#8b949e]">每2小时检查</div>
                                 </div>
                             </div>
-                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                            <span class="module-badge badge badge-p2 px-2 py-1">ACTIVE</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#238636]">🟢 运行中</span>
+                                <span class="status-text text-[#238636]">🟢 运行中</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-[#8b949e]">最后检查</span>
-                                <span>1小时前</span>
+                                <span class="text-[#8b949e]">最后更新</span>
+                                <span class="last-update-time">--</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">待处理</span>
@@ -956,13 +957,13 @@
                                     <div class="text-xs text-[#8b949e]">每日自我反思</div>
                                 </div>
                             </div>
-                            <span class="badge px-2 py-1" style="background-color: #f85149; color: white;">ERROR</span>
+                            <span class="module-badge badge px-2 py-1" style="background-color: #f85149; color: white;">ERROR</span>
                         </div>
                         
                         <div class="space-y-2 mb-4">
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">状态</span>
-                                <span class="text-[#f85149]">🔴 异常</span>
+                                <span class="status-text text-[#f85149]">🔴 异常</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-[#8b949e]">错误信息</span>
@@ -1676,17 +1677,133 @@
         }
         
         // Monitor Center Functions
+        let currentStatusData = null;
+        let statusPollingInterval = null;
+        const STATUS_URL = 'https://raw.githubusercontent.com/iamnaruto1010-star/kcms/main/status.json';
+        
         function renderMonitorCenter() {
-            // Update dynamic data in monitoring modules
+            // Start polling when page is shown
+            startStatusPolling();
             updateModuleTimestamps();
         }
         
-        function updateModuleTimestamps() {
-            // Update P0 Monitor last scan time
-            const p0LastScan = document.getElementById('p0-last-scan');
-            if (p0LastScan) {
-                p0LastScan.textContent = Math.floor(Math.random() * 30 + 1) + '分钟前';
+        function startStatusPolling() {
+            // Clear existing interval
+            if (statusPollingInterval) {
+                clearInterval(statusPollingInterval);
             }
+            
+            // Initial fetch
+            fetchAgentStatus();
+            
+            // Poll every 5 seconds
+            statusPollingInterval = setInterval(fetchAgentStatus, 5000);
+        }
+        
+        function stopStatusPolling() {
+            if (statusPollingInterval) {
+                clearInterval(statusPollingInterval);
+                statusPollingInterval = null;
+            }
+        }
+        
+        async function fetchAgentStatus() {
+            try {
+                // Add cache-buster to avoid CDN caching
+                const url = `${STATUS_URL}?t=${Date.now()}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                currentStatusData = data;
+                
+                // Update UI
+                updateMonitorModules(data);
+                updateLastFetchTime();
+                
+            } catch (error) {
+                console.log('Failed to fetch status:', error);
+                showOfflineIndicator();
+            }
+        }
+        
+        function updateMonitorModules(data) {
+            if (!data || !data.agents) return;
+            
+            Object.entries(data.agents).forEach(([agentId, agentData]) => {
+                updateModuleCard(agentId, agentData);
+            });
+        }
+        
+        function updateModuleCard(agentId, agentData) {
+            // Find the module card
+            const card = document.querySelector(`[data-module="${agentId}"]`);
+            if (!card) return;
+            
+            // Update status text
+            const statusEl = card.querySelector('.status-text');
+            if (statusEl) {
+                statusEl.textContent = agentData.status_text;
+                statusEl.style.color = agentData.status_color;
+            }
+            
+            // Update last update time
+            const updateEl = card.querySelector('.last-update-time');
+            if (updateEl && agentData.last_update_minutes !== null) {
+                updateEl.textContent = formatTimeAgo(agentData.last_update_minutes);
+            }
+            
+            // Update border color based on status
+            card.style.borderLeftColor = agentData.status_color || '#30363d';
+            
+            // Update badge
+            const badge = card.querySelector('.module-badge');
+            if (badge) {
+                badge.textContent = agentData.status === 'running' ? 'ACTIVE' : 
+                                   agentData.status === 'error' ? 'ERROR' : 'IDLE';
+                badge.className = `module-badge badge px-2 py-1 ${getBadgeClass(agentData.status)}`;
+            }
+        }
+        
+        function formatTimeAgo(minutes) {
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return `${minutes}分钟前`;
+            if (minutes < 1440) return `${Math.floor(minutes / 60)}小时前`;
+            return `${Math.floor(minutes / 1440)}天前`;
+        }
+        
+        function getBadgeClass(status) {
+            switch(status) {
+                case 'running': return 'badge-p2';
+                case 'error': return 'badge-p0';
+                case 'stalled': return 'badge-p1';
+                default: return 'badge-p2';
+            }
+        }
+        
+        function updateLastFetchTime() {
+            const el = document.getElementById('last-fetch-time');
+            if (el) {
+                el.textContent = '更新于: ' + new Date().toLocaleTimeString('zh-CN');
+                el.classList.remove('text-[#f85149]');
+                el.classList.add('text-[#8b949e]');
+            }
+        }
+        
+        function showOfflineIndicator() {
+            const el = document.getElementById('last-fetch-time');
+            if (el) {
+                el.textContent = '离线模式';
+                el.classList.remove('text-[#8b949e]');
+                el.classList.add('text-[#f85149]');
+            }
+        }
+        
+        function updateModuleTimestamps() {
+            // This is now handled by real data
         }
         
         function refreshAllModules() {

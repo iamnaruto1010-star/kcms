@@ -700,6 +700,13 @@
                         <button onclick="importAllData()" class="btn-primary px-6 py-3 rounded-lg w-full">导入恢复</button>
                     </div>
                     
+                    <div class="panel p-6 border-[#58a6ff]">
+                        <div class="text-4xl mb-4">🔐</div>
+                        <h3 class="text-xl font-bold mb-2 text-[#58a6ff]">修改密码</h3>
+                        <p class="text-[#8b949e] mb-4">更改系统访问密码</p>
+                        <button onclick="showChangePasswordModal()" class="btn-primary px-6 py-3 rounded-lg w-full">修改密码</button>
+                    </div>
+                    
                     <div class="panel p-6 border-[#f85149]">
                         <div class="text-4xl mb-4">⚠️</div>
                         <h3 class="text-xl font-bold mb-2 text-[#f85149]">危险区域</h3>
@@ -747,6 +754,32 @@
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddTaskModal()" class="flex-1 btn-secondary py-2 rounded-lg">取消</button>
                 <button onclick="submitNewTask()" class="flex-1 btn-primary py-2 rounded-lg">添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="panel p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">🔐 修改密码</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">当前密码</label>
+                    <input type="password" id="current-password" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">新密码</label>
+                    <input type="password" id="new-password" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">确认新密码</label>
+                    <input type="password" id="confirm-password" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                </div>
+                <div id="password-error" class="text-[#f85149] text-sm hidden"></div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeChangePasswordModal()" class="flex-1 btn-secondary py-2 rounded-lg">取消</button>
+                <button onclick="submitChangePassword()" class="flex-1 btn-primary py-2 rounded-lg">确认修改</button>
             </div>
         </div>
     </div>
@@ -1395,13 +1428,13 @@
         }
         
         // Password Protection
-        const CORRECT_PASSWORD = 'kcms2026';
+        window.CORRECT_PASSWORD = localStorage.getItem('kcms_custom_password') || 'kcms2026';
         
         function checkPassword() {
             const input = document.getElementById('password-input').value;
             const errorDiv = document.getElementById('login-error');
             
-            if (input === CORRECT_PASSWORD) {
+            if (input === window.CORRECT_PASSWORD) {
                 // Save login state
                 localStorage.setItem('kcms_logged_in', 'true');
                 localStorage.setItem('kcms_login_time', new Date().toISOString());
@@ -1455,6 +1488,73 @@
             localStorage.removeItem('kcms_login_time');
             location.reload();
         }
+        
+        // Change Password Functions
+        function showChangePasswordModal() {
+            document.getElementById('change-password-modal').classList.remove('hidden');
+            document.getElementById('change-password-modal').classList.add('flex');
+            document.getElementById('current-password').focus();
+        }
+        
+        function closeChangePasswordModal() {
+            document.getElementById('change-password-modal').classList.add('hidden');
+            document.getElementById('change-password-modal').classList.remove('flex');
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+        }
+        
+        function submitChangePassword() {
+            const currentPwd = document.getElementById('current-password').value;
+            const newPwd = document.getElementById('new-password').value;
+            const confirmPwd = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('password-error');
+            
+            // 验证当前密码
+            if (currentPwd !== CORRECT_PASSWORD) {
+                errorDiv.textContent = '当前密码错误';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // 验证新密码
+            if (newPwd.length < 6) {
+                errorDiv.textContent = '新密码至少需要6位';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // 验证确认密码
+            if (newPwd !== confirmPwd) {
+                errorDiv.textContent = '两次输入的新密码不一致';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // 更新密码（通过修改localStorage存储的密码）
+            localStorage.setItem('kcms_custom_password', newPwd);
+            
+            // 更新内存中的密码
+            window.CORRECT_PASSWORD = newPwd;
+            
+            logOperation('修改密码', '用户修改了访问密码');
+            alert('密码修改成功！下次登录请使用新密码。');
+            closeChangePasswordModal();
+        }
+        
+        // 加载自定义密码（如果有）
+        function loadCustomPassword() {
+            const customPwd = localStorage.getItem('kcms_custom_password');
+            if (customPwd) {
+                window.CORRECT_PASSWORD = customPwd;
+            } else {
+                window.CORRECT_PASSWORD = 'kcms2026';
+            }
+        }
+        
+        // 页面加载时初始化密码
+        loadCustomPassword();
     </script>
 </body>
 </html>

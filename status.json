@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-23T16:51:38.528567",
+  "timestamp": "2026-03-23T16:51:50.430694",
   "agents": {
     "p0-monitor": {
       "id": "p0-monitor",
@@ -67,7 +67,7 @@
       "status_text": "🟢 运行中",
       "status_color": "#238636",
       "last_update": "2026-03-22T00:00:48.177458",
-      "last_update_minutes": 2450,
+      "last_update_minutes": 2451,
       "check_interval": 86400,
       "log_tail": "2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - ============================================================\n2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - 优化完成 - 需要再平衡: 5 个组合\n2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - ============================================================"
     },
@@ -117,9 +117,9 @@
   "system": {
     "hostname": "VM-14-199-ubuntu",
     "load_avg": [
-      0.07470703125,
-      0.0546875,
-      0.04736328125
+      0.0625,
+      0.052734375,
+      0.04638671875
     ],
     "disk_usage": {
       "total": "40G",

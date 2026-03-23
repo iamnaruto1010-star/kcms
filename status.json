@@ -1,0 +1,131 @@
+{
+  "timestamp": "2026-03-23T16:49:24.540129",
+  "agents": {
+    "p0-monitor": {
+      "id": "p0-monitor",
+      "name": "P0突发事件监控",
+      "icon": "🔴",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 3600,
+      "log_tail": ""
+    },
+    "risk-manager": {
+      "id": "risk-manager",
+      "name": "风控监控",
+      "icon": "⚡",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": "2026-03-23T02:04:24.464517",
+      "last_update_minutes": 885,
+      "check_interval": 300,
+      "log_tail": ""
+    },
+    "news-collector": {
+      "id": "news-collector",
+      "name": "情报收集",
+      "icon": "📰",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 1800,
+      "log_tail": ""
+    },
+    "technical-analyzer": {
+      "id": "technical-analyzer",
+      "name": "技术分析",
+      "icon": "📊",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 900,
+      "log_tail": ""
+    },
+    "portfolio-optimizer": {
+      "id": "portfolio-optimizer",
+      "name": "组合优化",
+      "icon": "💼",
+      "running": true,
+      "pid": 63596,
+      "status": "running",
+      "status_text": "🟢 运行中",
+      "status_color": "#238636",
+      "last_update": "2026-03-22T00:00:48.177458",
+      "last_update_minutes": 2448,
+      "check_interval": 86400,
+      "log_tail": "2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - ============================================================\n2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - 优化完成 - 需要再平衡: 5 个组合\n2026-03-22 00:00:48,177 - portfolio_optimizer - INFO - ============================================================"
+    },
+    "todo-tracker": {
+      "id": "todo-tracker",
+      "name": "Todo追踪",
+      "icon": "✅",
+      "running": false,
+      "pid": null,
+      "status": "idle",
+      "status_text": "⚪ 等待中",
+      "status_color": "#8b949e",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 900,
+      "log_tail": ""
+    },
+    "moltcn-monitor": {
+      "id": "moltcn-monitor",
+      "name": "Moltcn监控",
+      "icon": "🌐",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 7200,
+      "log_tail": ""
+    },
+    "evolution-officer": {
+      "id": "evolution-officer",
+      "name": "进化官",
+      "icon": "🧬",
+      "running": false,
+      "pid": null,
+      "status": "error",
+      "status_text": "🔴 异常",
+      "status_color": "#f85149",
+      "last_update": null,
+      "last_update_minutes": null,
+      "check_interval": 86400,
+      "log_tail": ""
+    }
+  },
+  "system": {
+    "hostname": "VM-14-199-ubuntu",
+    "load_avg": [
+      0.08935546875,
+      0.06689453125,
+      0.0546875
+    ],
+    "disk_usage": {
+      "total": "40G",
+      "used": "22G",
+      "available": "17G",
+      "percent": "58%"
+    }
+  }
+}

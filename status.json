@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-23T19:04:29.333848",
+  "timestamp": "2026-03-23T19:04:41.796205",
   "agents": {
     "p0-monitor": {
       "id": "p0-monitor",
@@ -117,15 +117,15 @@
   "system": {
     "hostname": "VM-14-199-ubuntu",
     "load_avg": [
-      1.4619140625,
-      0.669921875,
-      0.28759765625
+      1.5078125,
+      0.7197265625,
+      0.31005859375
     ],
     "disk_usage": {
       "total": "40G",
-      "used": "31G",
-      "available": "7.0G",
-      "percent": "82%"
+      "used": "32G",
+      "available": "5.9G",
+      "percent": "85%"
     }
   }
 }

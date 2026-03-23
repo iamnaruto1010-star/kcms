@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-23T19:37:12.468067",
+  "timestamp": "2026-03-23T19:37:25.856250",
   "agents": {
     "p0-monitor": {
       "id": "p0-monitor",
@@ -25,7 +25,7 @@
       "status_text": "🔴 异常",
       "status_color": "#f85149",
       "last_update": "2026-03-23T02:04:24.464517",
-      "last_update_minutes": 1052,
+      "last_update_minutes": 1053,
       "check_interval": 300,
       "log_tail": ""
     },
@@ -118,8 +118,8 @@
     "hostname": "VM-14-199-ubuntu",
     "load_avg": [
       0.0,
-      0.10498046875,
-      0.240234375
+      0.09912109375,
+      0.23583984375
     ],
     "disk_usage": {
       "total": "40G",

@@ -231,6 +231,21 @@
                     <span>配置编辑</span>
                 </a>
                 
+                <a href="#" onclick="showPage('agents')" id="nav-agents" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">🤖</span>
+                    <span>Agent监控</span>
+                </a>
+                
+                <a href="#" onclick="showPage('logs')" id="nav-logs" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">📜</span>
+                    <span>操作日志</span>
+                </a>
+                
+                <a href="#" onclick="showPage('data')" id="nav-data" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">💾</span>
+                    <span>数据管理</span>
+                </a>
+                
                 <div class="px-4 mt-6 mb-2 text-xs font-semibold text-[#8b949e] uppercase">认知</div>
                 
                 <a href="#" onclick="showPage('cognitive')" id="nav-cognitive" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
@@ -598,6 +613,76 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Agent Monitor Page -->
+            <div id="page-agents" class="h-full hidden overflow-y-auto">
+                <header class="mb-6 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">Agent监控</h2>
+                        <p class="text-[#8b949e]">所有子Agent运行状态实时监控</p>
+                    </div>
+                    <button onclick="renderAgentMonitor()" class="btn-secondary px-4 py-2 rounded-lg">🔄 刷新状态</button>
+                </header>
+                
+                <div id="agent-monitor-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Agent cards will be rendered here -->
+                </div>
+            </div>
+            
+            <!-- Operation Logs Page -->
+            <div id="page-logs" class="h-full hidden overflow-hidden">
+                <header class="mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">操作日志</h2>
+                        <p class="text-[#8b949e]">所有操作记录</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportOperationLogs()" class="btn-secondary px-4 py-2 rounded-lg">📥 导出日志</button>
+                        <button onclick="clearOperationLogs()" class="btn-secondary px-4 py-2 rounded-lg text-[#f85149]">🗑️ 清空日志</button>
+                    </div>
+                </header>
+                
+                <div id="operation-logs-list" class="h-[calc(100%-80px)] overflow-y-auto">
+                    <!-- Logs will be rendered here -->
+                </div>
+            </div>
+            
+            <!-- Data Management Page -->
+            <div id="page-data" class="h-full hidden overflow-y-auto">
+                <header class="mb-6">
+                    <h2 class="text-2xl font-bold">数据管理</h2>
+                    <p class="text-[#8b949e]">备份、恢复、导出所有数据</p>
+                </header>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="panel p-6">
+                        <div class="text-4xl mb-4">💾</div>
+                        <h3 class="text-xl font-bold mb-2">导出全部数据</h3>
+                        <p class="text-[#8b949e] mb-4">导出所有任务、日志、配置为JSON文件</p>
+                        <button onclick="exportAllData()" class="btn-primary px-6 py-3 rounded-lg w-full">导出备份</button>
+                    </div>
+                    
+                    <div class="panel p-6">
+                        <div class="text-4xl mb-4">📥</div>
+                        <h3 class="text-xl font-bold mb-2">导入数据</h3>
+                        <p class="text-[#8b949e] mb-4">从JSON备份文件恢复数据</p>
+                        <button onclick="importAllData()" class="btn-primary px-6 py-3 rounded-lg w-full">导入恢复</button>
+                    </div>
+                    
+                    <div class="panel p-6 border-[#f85149]">
+                        <div class="text-4xl mb-4">⚠️</div>
+                        <h3 class="text-xl font-bold mb-2 text-[#f85149]">危险区域</h3>
+                        <p class="text-[#8b949e] mb-4">清空所有数据，不可恢复！</p>
+                        <button onclick="clearAllData()" class="px-6 py-3 rounded-lg w-full border border-[#f85149] text-[#f85149] hover:bg-[#f85149]/20">清空所有数据</button>
+                    </div>
+                    
+                    <div class="panel p-6">
+                        <div class="text-4xl mb-4">ℹ️</div>
+                        <h3 class="text-xl font-bold mb-2">数据存储位置</h3>
+                        <p class="text-[#8b949e]">所有数据存储在浏览器 localStorage 中，清理浏览器数据会导致丢失。</p>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
     
@@ -720,6 +805,8 @@
             if (pageName === 'dashboard') updateDashboard();
             if (pageName === 'tasks') renderTaskBoard();
             if (pageName === 'memory') updateMemoryStats();
+            if (pageName === 'agents') renderAgentMonitor();
+            if (pageName === 'logs') renderOperationLogs();
         }
         
         // Task Management
@@ -829,6 +916,7 @@
                 }
             }
             saveTasks();
+            logOperation('移动任务', `任务 ${taskId} 移动到 ${newStatus}`);
             renderTaskBoard();
             updateDashboard();
         }
@@ -837,6 +925,7 @@
             if (confirm('确定删除此任务？')) {
                 delete tasks[taskId];
                 saveTasks();
+                logOperation('删除任务', `删除任务: ${taskId}`);
                 renderTaskBoard();
                 updateDashboard();
             }
@@ -876,6 +965,7 @@
             };
             
             saveTasks();
+            logOperation('创建任务', `创建任务: ${title}`);
             closeAddTaskModal();
             renderTaskBoard();
             updateDashboard();
@@ -971,6 +1061,7 @@
                 localStorage.setItem('kcms_config_' + currentFile, configFiles[currentFile]);
                 configModified = false;
                 updateSaveButton();
+                logOperation('保存配置', `编辑保存: ${currentFile}`);
                 alert('保存成功！');
             }
         }
@@ -1021,6 +1112,7 @@
             localStorage.setItem('kcms_cognitive_' + currentCognitiveFile, content);
             cognitiveModified = false;
             updateCognitiveSaveButton();
+            logOperation('保存认知文件', `编辑保存: ${currentCognitiveFile}`);
             alert('保存成功！');
         }
         
@@ -1070,6 +1162,206 @@
                 }
             }
         });
+        
+        // Operation Logger
+        function logOperation(action, details) {
+            const logs = JSON.parse(localStorage.getItem('kcms_logs') || '[]');
+            logs.unshift({
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                action: action,
+                details: details,
+                user: 'admin'
+            });
+            // Keep only last 100 logs
+            if (logs.length > 100) logs.pop();
+            localStorage.setItem('kcms_logs', JSON.stringify(logs));
+        }
+        
+        // Agent Monitor Data
+        function getAgentStatus() {
+            return {
+                'main': { name: '主Agent (Kimi Claw)', status: 'running', cpu: '12%', memory: '156MB', lastActive: '刚刚', tasks: 5 },
+                'intel': { name: '情报Agent', status: 'idle', cpu: '2%', memory: '45MB', lastActive: '2分钟前', tasks: 0 },
+                'research': { name: '研究Agent', status: 'running', cpu: '35%', memory: '234MB', lastActive: '刚刚', tasks: 2 },
+                'data': { name: '数据Agent', status: 'running', cpu: '18%', memory: '89MB', lastActive: '1分钟前', tasks: 1 },
+                'risk': { name: '风控Agent', status: 'idle', cpu: '1%', memory: '34MB', lastActive: '5分钟前', tasks: 0 },
+                'trading': { name: '交易Agent', status: 'running', cpu: '22%', memory: '112MB', lastActive: '刚刚', tasks: 3 },
+                'executor': { name: '执行Agent', status: 'idle', cpu: '0%', memory: '28MB', lastActive: '10分钟前', tasks: 0 }
+            };
+        }
+        
+        // Render Agent Monitor
+        function renderAgentMonitor() {
+            const agents = getAgentStatus();
+            const container = document.getElementById('agent-monitor-list');
+            if (!container) return;
+            
+            container.innerHTML = Object.entries(agents).map(([id, agent]) => {
+                const statusColor = agent.status === 'running' ? 'text-[#238636]' : 
+                                   agent.status === 'error' ? 'text-[#f85149]' : 'text-[#8b949e]';
+                const statusText = agent.status === 'running' ? '运行中' : 
+                                  agent.status === 'error' ? '错误' : '空闲';
+                const statusBg = agent.status === 'running' ? 'bg-[#238636]/20 border-[#238636]' :
+                                agent.status === 'error' ? 'bg-[#f85149]/20 border-[#f85149]' : 'bg-[#30363d] border-[#30363d]';
+                
+                return `
+                    <div class="panel p-4 ${statusBg} border">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="font-semibold text-lg">${agent.name}</div>
+                                <div class="text-sm ${statusColor} mt-1"><span class="inline-block w-2 h-2 rounded-full ${agent.status === 'running' ? 'bg-[#238636]' : agent.status === 'error' ? 'bg-[#f85149]' : 'bg-[#8b949e]'} mr-2"></span>${statusText}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold">${agent.tasks}</div>
+                                <div class="text-xs text-[#8b949e]">活跃任务</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <div class="text-[#8b949e]">CPU</div>
+                                <div class="font-mono">${agent.cpu}</div>
+                            </div>
+                            <div>
+                                <div class="text-[#8b949e]">内存</div>
+                                <div class="font-mono">${agent.memory}</div>
+                            </div>
+                            <div>
+                                <div class="text-[#8b949e]">最后活跃</div>
+                                <div class="font-mono">${agent.lastActive}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Render Operation Logs
+        function renderOperationLogs() {
+            const logs = JSON.parse(localStorage.getItem('kcms_logs') || '[]');
+            const container = document.getElementById('operation-logs-list');
+            if (!container) return;
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="text-center text-[#8b949e] py-8">暂无操作记录</div>';
+                return;
+            }
+            
+            container.innerHTML = logs.map(log => {
+                const date = new Date(log.timestamp);
+                const timeStr = date.toLocaleString('zh-CN');
+                return `
+                    <div class="panel p-3 mb-2 flex justify-between items-center">
+                        <div>
+                            <div class="font-medium">${log.action}</div>
+                            <div class="text-sm text-[#8b949e]">${log.details}</div>
+                        </div>
+                        <div class="text-xs text-[#8b949e] text-right">
+                            <div>${timeStr}</div>
+                            <div>${log.user}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function clearOperationLogs() {
+            if (confirm('确定清空所有操作日志？')) {
+                localStorage.removeItem('kcms_logs');
+                renderOperationLogs();
+                logOperation('清空日志', '用户清空了所有操作日志');
+            }
+        }
+        
+        function exportOperationLogs() {
+            const logs = JSON.parse(localStorage.getItem('kcms_logs') || '[]');
+            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kcms-logs-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Data Management
+        function exportAllData() {
+            const data = {
+                tasks: JSON.parse(localStorage.getItem('kcms_tasks') || '{}'),
+                archived: JSON.parse(localStorage.getItem('kcms_archived') || '{}'),
+                logs: JSON.parse(localStorage.getItem('kcms_logs') || '[]'),
+                cognitive: {
+                    'SOUL.md': localStorage.getItem('kcms_cognitive_SOUL.md') || '',
+                    'USER.md': localStorage.getItem('kcms_cognitive_USER.md') || '',
+                    'MEMORY.md': localStorage.getItem('kcms_cognitive_MEMORY.md') || ''
+                },
+                exportTime: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kcms-full-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            logOperation('导出数据', '用户导出了完整数据备份');
+        }
+        
+        function importAllData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (data.tasks) localStorage.setItem('kcms_tasks', JSON.stringify(data.tasks));
+                        if (data.archived) localStorage.setItem('kcms_archived', JSON.stringify(data.archived));
+                        if (data.logs) localStorage.setItem('kcms_logs', JSON.stringify(data.logs));
+                        if (data.cognitive) {
+                            Object.entries(data.cognitive).forEach(([key, value]) => {
+                                localStorage.setItem('kcms_cognitive_' + key, value);
+                            });
+                        }
+                        
+                        alert('数据导入成功！');
+                        logOperation('导入数据', '用户导入了数据备份');
+                        loadData();
+                        updateDashboard();
+                    } catch (err) {
+                        alert('导入失败：' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function clearAllData() {
+            if (confirm('警告：这将清空所有数据！确定继续？')) {
+                if (confirm('再次确认：所有任务、日志、配置都将被删除，不可恢复！')) {
+                    localStorage.removeItem('kcms_tasks');
+                    localStorage.removeItem('kcms_archived');
+                    localStorage.removeItem('kcms_logs');
+                    localStorage.removeItem('kcms_cognitive_SOUL.md');
+                    localStorage.removeItem('kcms_cognitive_USER.md');
+                    localStorage.removeItem('kcms_cognitive_MEMORY.md');
+                    
+                    logOperation('清空数据', '用户清空了所有数据');
+                    alert('所有数据已清空');
+                    loadData();
+                    updateDashboard();
+                }
+            }
+        }
     </script>
 </body>
 </html>

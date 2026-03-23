@@ -264,6 +264,11 @@
                     <span>Agent监控</span>
                 </a>
                 
+                <a href="#" onclick="showPage('monitor')" id="nav-monitor" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">📡</span>
+                    <span>监控中心</span>
+                </a>
+                
                 <a href="#" onclick="showPage('logs')" id="nav-logs" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
                     <span class="mr-3">📜</span>
                     <span>操作日志</span>
@@ -660,6 +665,327 @@
                 </div>
             </div>
             
+            <!-- Monitoring Center Page -->
+            <div id="page-monitor" class="h-full hidden overflow-y-auto">
+                <header class="mb-6 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">📡 监控中心</h2>
+                        <p class="text-[#8b949e]">模块化监控体系 - 可独立升级配置</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="refreshAllModules()" class="btn-secondary px-4 py-2 rounded-lg">🔄 刷新全部</button>
+                        <button onclick="showModuleSettings()" class="btn-primary px-4 py-2 rounded-lg">⚙️ 模块管理</button>
+                    </div>
+                </header>
+                
+                <!-- Module Grid -->
+                <div id="monitor-modules-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- P0 Monitor Module -->
+                    <div class="panel p-4 border-l-4 border-[#f85149]" data-module="p0-monitor">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">🔴</span>
+                                <div>
+                                    <div class="font-bold">P0 突发事件监控</div>
+                                    <div class="text-xs text-[#8b949e]">每小时扫描</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p0 px-2 py-1">HIGH</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#238636]">🟢 正常运行</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">上次扫描</span>
+                                <span id="p0-last-scan">16分钟前</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">今日事件</span>
+                                <span id="p0-events-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('p0-monitor')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('p0-monitor')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Manager Module -->
+                    <div class="panel p-4 border-l-4 border-[#f0883e]" data-module="risk-manager">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">⚡</span>
+                                <div>
+                                    <div class="font-bold">风控监控</div>
+                                    <div class="text-xs text-[#8b949e]">5分钟检查</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p1 px-2 py-1">NORMAL</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">六组合状态</span>
+                                <span class="text-[#238636]">🟢 正常</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">上次检查</span>
+                                <span>3分钟前</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">风险告警</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('risk-manager')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('risk-manager')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- News Collector Module -->
+                    <div class="panel p-4 border-l-4 border-[#58a6ff]" data-module="news-collector">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">📰</span>
+                                <div>
+                                    <div class="font-bold">情报收集</div>
+                                    <div class="text-xs text-[#8b949e]">定时收集</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#238636]">🟢 运行中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">今日收集</span>
+                                <span>45条</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">领域覆盖</span>
+                                <span>3/3</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('news-collector')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('news-collector')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Technical Analyzer Module -->
+                    <div class="panel p-4 border-l-4 border-[#8b5cf6]" data-module="technical-analyzer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">📊</span>
+                                <div>
+                                    <div class="font-bold">技术分析</div>
+                                    <div class="text-xs text-[#8b949e]">15分钟更新</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#238636]">🟢 运行中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">最后更新</span>
+                                <span>8分钟前</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">分析标的</span>
+                                <span>12只</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('technical-analyzer')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('technical-analyzer')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Portfolio Optimizer Module -->
+                    <div class="panel p-4 border-l-4 border-[#58a6ff]" data-module="portfolio-optimizer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">💼</span>
+                                <div>
+                                    <div class="font-bold">组合优化</div>
+                                    <div class="text-xs text-[#8b949e]">收盘后运行</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p2 px-2 py-1">IDLE</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#8b949e]">⚪ 等待中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">六组合</span>
+                                <span>Alpha/Beta/Gamma/Delta/Eta/Zeta</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">下次运行</span>
+                                <span>15:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('portfolio-optimizer')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('portfolio-optimizer')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Todo Tracker Module -->
+                    <div class="panel p-4 border-l-4 border-[#f0883e]" data-module="todo-tracker">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">✅</span>
+                                <div>
+                                    <div class="font-bold">Todo自动追踪</div>
+                                    <div class="text-xs text-[#8b949e]">15分钟检查</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p1 px-2 py-1">ACTIVE</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#238636]">🟢 运行中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">活跃任务</span>
+                                <span id="todo-active-count">2</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">今日完成</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('todo-tracker')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('todo-tracker')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Moltcn Monitor Module -->
+                    <div class="panel p-4 border-l-4 border-[#58a6ff]" data-module="moltcn-monitor">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">🌐</span>
+                                <div>
+                                    <div class="font-bold">Moltcn监控</div>
+                                    <div class="text-xs text-[#8b949e]">每2小时检查</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-p2 px-2 py-1">ACTIVE</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#238636]">🟢 运行中</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">最后检查</span>
+                                <span>1小时前</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">待处理</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('moltcn-monitor')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('moltcn-monitor')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Evolution Officer Module -->
+                    <div class="panel p-4 border-l-4 border-[#8b5cf6]" data-module="evolution-officer">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">🧬</span>
+                                <div>
+                                    <div class="font-bold">进化官</div>
+                                    <div class="text-xs text-[#8b949e]">每日自我反思</div>
+                                </div>
+                            </div>
+                            <span class="badge px-2 py-1" style="background-color: #f85149; color: white;">ERROR</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">状态</span>
+                                <span class="text-[#f85149]">🔴 异常</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">错误信息</span>
+                                <span class="text-[#f85149]">Cron Error</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#8b949e]">成熟度</span>
+                                <span>49/100</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="viewModuleDetails('evolution-officer')" class="flex-1 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                查看详情 →
+                            </button>
+                            <button onclick="configureModule('evolution-officer')" class="px-3 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Operation Logs Page -->
             <div id="page-logs" class="h-full hidden overflow-hidden">
                 <header class="mb-4 flex justify-between items-center">
@@ -871,6 +1197,7 @@
             if (pageName === 'memory') updateMemoryStats();
             if (pageName === 'agents') renderAgentMonitor();
             if (pageName === 'logs') renderOperationLogs();
+            if (pageName === 'monitor') renderMonitorCenter();
         }
         
         // Task Management
@@ -1346,6 +1673,170 @@
             a.download = 'kcms-logs-' + new Date().toISOString().slice(0, 10) + '.json';
             a.click();
             URL.revokeObjectURL(url);
+        }
+        
+        // Monitor Center Functions
+        function renderMonitorCenter() {
+            // Update dynamic data in monitoring modules
+            updateModuleTimestamps();
+        }
+        
+        function updateModuleTimestamps() {
+            // Update P0 Monitor last scan time
+            const p0LastScan = document.getElementById('p0-last-scan');
+            if (p0LastScan) {
+                p0LastScan.textContent = Math.floor(Math.random() * 30 + 1) + '分钟前';
+            }
+        }
+        
+        function refreshAllModules() {
+            // Simulate refreshing all modules
+            const btn = event.target;
+            btn.textContent = '🔄 刷新中...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.textContent = '🔄 刷新全部';
+                btn.disabled = false;
+                renderMonitorCenter();
+                logOperation('刷新模块', '用户手动刷新了所有监控模块');
+            }, 1000);
+        }
+        
+        function viewModuleDetails(moduleId) {
+            const moduleDetails = {
+                'p0-monitor': {
+                    name: 'P0 突发事件监控',
+                    description: '监控地缘政治、经济合作、军事、政法等领域P0级突发事件',
+                    config: {
+                        '扫描频率': '每小时',
+                        '监控范围': '地缘政治、科技产业、军事、政法',
+                        '告警阈值': 'P0级事件立即推送',
+                        '数据源': '多源交叉验证'
+                    },
+                    lastEvents: [],
+                    upgradeAvailable: false
+                },
+                'risk-manager': {
+                    name: '风控监控',
+                    description: '六组合实时风险评估与仓位管理',
+                    config: {
+                        '检查频率': '每5分钟',
+                        '监控组合': 'Alpha/Beta/Gamma/Delta/Eta/Zeta',
+                        '止损线': '单日±5%',
+                        '告警方式': '立即推送'
+                    },
+                    status: 'normal'
+                },
+                'news-collector': {
+                    name: '情报收集',
+                    description: '三领域情报自动收集与分类',
+                    config: {
+                        '收集频率': '定时任务',
+                        '覆盖领域': '地缘政治/经济合作/科技创新',
+                        '存储位置': 'memory/YYYY-MM-DD.md'
+                    },
+                    todayCount: 45
+                },
+                'technical-analyzer': {
+                    name: '技术分析',
+                    description: '多周期技术分析与趋势预测',
+                    config: {
+                        '更新频率': '每15分钟',
+                        '分析标的': 'A股持仓股票',
+                        '技术指标': 'MACD/KDJ/RSI/布林带',
+                        '周期': '日线/60分钟/30分钟'
+                    }
+                },
+                'portfolio-optimizer': {
+                    name: '组合优化',
+                    description: '六组合收盘后优化与再平衡',
+                    config: {
+                        '运行时间': '收盘后 15:00-17:00',
+                        '优化目标': '夏普比率最大化',
+                        '约束条件': '行业分散/仓位限制'
+                    }
+                },
+                'todo-tracker': {
+                    name: 'Todo自动追踪',
+                    description: '任务自动追踪与状态更新',
+                    config: {
+                        '检查频率': '每15分钟',
+                        '报告时间': '每日20:00',
+                        '追踪范围': '所有子Agent任务'
+                    },
+                    activeTasks: 2
+                },
+                'moltcn-monitor': {
+                    name: 'Moltcn监控',
+                    description: '技能更新、私信、动态流监控',
+                    config: {
+                        '检查频率': '每2小时',
+                        '监控项': '技能更新/私信/动态流'
+                    }
+                },
+                'evolution-officer': {
+                    name: '进化官',
+                    description: '每日自我反思与成长',
+                    config: {
+                        '执行时间': '每日 05:30',
+                        '反思维度': '成功模式/错误模式/认知进化',
+                        '输出': 'reflection报告'
+                    },
+                    error: 'Cron任务异常，需修复'
+                }
+            };
+            
+            const details = moduleDetails[moduleId];
+            if (details) {
+                let configHtml = '';
+                if (details.config) {
+                    configHtml = Object.entries(details.config)
+                        .map(([key, value]) => `<div class="flex justify-between text-sm py-1"><span class="text-[#8b949e]">${key}</span><span>${value}</span></div>`)
+                        .join('');
+                }
+                
+                alert(`📡 ${details.name}\n\n${details.description}\n\n配置信息:\n${Object.entries(details.config || {}).map(([k, v]) => `• ${k}: ${v}`).join('\n')}\n\n${details.error ? '⚠️ 异常: ' + details.error : ''}`);
+            }
+            
+            logOperation('查看模块详情', `查看模块: ${moduleId}`);
+        }
+        
+        function configureModule(moduleId) {
+            // Module configuration - can be extended for each module
+            const configs = {
+                'p0-monitor': {
+                    frequency: ['每30分钟', '每小时', '每2小时'],
+                    alerts: ['立即推送', '每日汇总', '仅紧急']
+                },
+                'risk-manager': {
+                    checkInterval: ['1分钟', '5分钟', '15分钟'],
+                    stopLoss: ['3%', '5%', '10%']
+                }
+            };
+            
+            const moduleName = {
+                'p0-monitor': 'P0突发事件监控',
+                'risk-manager': '风控监控',
+                'news-collector': '情报收集',
+                'technical-analyzer': '技术分析',
+                'portfolio-optimizer': '组合优化',
+                'todo-tracker': 'Todo追踪',
+                'moltcn-monitor': 'Moltcn监控',
+                'evolution-officer': '进化官'
+            }[moduleId];
+            
+            const action = prompt(`⚙️ 配置 ${moduleName}\n\n可选操作:\n1. 修改扫描频率\n2. 调整告警阈值\n3. 启用/禁用模块\n4. 查看运行日志\n\n请输入选项 (1-4):`);
+            
+            if (action) {
+                logOperation('配置模块', `配置模块 ${moduleId}, 选项: ${action}`);
+                alert('配置功能演示：实际配置将保存到模块配置文件中。');
+            }
+        }
+        
+        function showModuleSettings() {
+            alert('📡 模块管理\n\n功能:\n• 启用/禁用模块\n• 调整模块优先级\n• 批量配置\n• 模块升级\n\n(演示版本，完整功能开发中)');
+            logOperation('打开模块管理', '用户打开了模块管理面板');
         }
         
         // Data Management

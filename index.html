@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimi Claw Management System (KCms)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Dark theme colors matching Cortana Command Center */
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #238636;
+            --accent-orange: #f0883e;
+            --accent-red: #f85149;
+            --accent-purple: #8b5cf6;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .panel {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        
+        .sidebar-item {
+            transition: all 0.2s;
+        }
+        
+        .sidebar-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+        
+        .sidebar-item.active {
+            background-color: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border-color);
+        }
+        
+        .task-card {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-blue);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .task-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .task-card.completed {
+            border-left-color: var(--accent-green);
+        }
+        
+        .task-card.blocked {
+            border-left-color: var(--accent-red);
+        }
+        
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-p0 { background-color: var(--accent-red); color: white; }
+        .badge-p1 { background-color: var(--accent-orange); color: white; }
+        .badge-p2 { background-color: var(--accent-blue); color: white; }
+        
+        .progress-bar {
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4a9eff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+        
+        .editor-container {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        textarea {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: none;
+            resize: none;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        textarea:focus {
+            outline: none;
+        }
+        
+        .memory-layer {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(88, 166, 255, 0.1) 100%);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        
+        .memory-layer:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .architecture-node {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .architecture-node:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+        }
+        
+        .connection-line {
+            stroke: var(--border-color);
+            stroke-width: 2;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .hidden { display: none !important; }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div class="flex h-full">
+        <!-- Sidebar -->
+        <aside class="w-64 panel m-4 mr-0 flex flex-col">
+            <div class="p-4 border-b border-[#30363d]">
+                <h1 class="text-xl font-bold text-[#58a6ff]">📋 KCms</h1>
+                <p class="text-xs text-[#8b949e] mt-1">Kimi Claw Management</p>
+            </div>
+            
+            <nav class="flex-1 py-4 overflow-y-auto">
+                <div class="px-4 mb-2 text-xs font-semibold text-[#8b949e] uppercase">系统</div>
+                
+                <a href="#" onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">📊</span>
+                    <span>总览看板</span>
+                </a>
+                
+                <a href="#" onclick="showPage('tasks')" id="nav-tasks" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">✅</span>
+                    <span>任务看板</span>
+                </a>
+                
+                <a href="#" onclick="showPage('memory')" id="nav-memory" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">🧠</span>
+                    <span>记忆管理</span>
+                </a>
+                
+                <a href="#" onclick="showPage('architecture')" id="nav-architecture" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">🏗️</span>
+                    <span>系统架构</span>
+                </a>
+                
+                <a href="#" onclick="showPage('config')" id="nav-config" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">⚙️</span>
+                    <span>配置编辑</span>
+                </a>
+                
+                <div class="px-4 mt-6 mb-2 text-xs font-semibold text-[#8b949e] uppercase">认知</div>
+                
+                <a href="#" onclick="showPage('cognitive')" id="nav-cognitive" class="sidebar-item flex items-center px-4 py-3 mx-2 rounded-lg">
+                    <span class="mr-3">🧘</span>
+                    <span>认知系统</span>
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-[#30363d]">
+                <div class="flex items-center text-sm text-[#8b949e]">
+                    <span class="w-2 h-2 rounded-full bg-[#238636] mr-2"></span>
+                    <span>系统正常</span>
+                </div>
+                <div class="text-xs text-[#8b949e] mt-1" id="last-update">更新于: --:--</div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-4 overflow-hidden">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="h-full overflow-y-auto fade-in">
+                <header class="mb-6">
+                    <h2 class="text-2xl font-bold">总览看板</h2>
+                    <p class="text-[#8b949e]">系统状态实时监控</p>
+                </header>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card p-4 rounded-xl">
+                        <div class="text-3xl font-bold text-[#58a6ff]" id="stat-total">0</div>
+                        <div class="text-sm text-[#8b949e]">总任务</div>
+                    </div>
+                    <div class="stat-card p-4 rounded-xl">
+                        <div class="text-3xl font-bold text-[#f0883e]" id="stat-running">0</div>
+                        <div class="text-sm text-[#8b949e]">进行中</div>
+                    </div>
+                    <div class="stat-card p-4 rounded-xl">
+                        <div class="text-3xl font-bold text-[#238636]" id="stat-completed">0</div>
+                        <div class="text-sm text-[#8b949e]">已完成</div>
+                    </div>
+                    <div class="stat-card p-4 rounded-xl">
+                        <div class="text-3xl font-bold text-[#f85149]" id="stat-blocked">0</div>
+                        <div class="text-sm text-[#8b949e]">阻塞</div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="panel p-4 mb-6">
+                    <h3 class="font-semibold mb-3">快捷操作</h3>
+                    <div class="flex gap-3">
+                        <button onclick="showPage('tasks'); openAddTaskModal()" class="btn-primary px-4 py-2 rounded-lg">
+                            + 添加任务
+                        </button>
+                        <button onclick="showPage('memory'); rebuildMemory()" class="btn-secondary px-4 py-2 rounded-lg">
+                            🔄 重建记忆索引
+                        </button>
+                        <button onclick="exportData()" class="btn-secondary px-4 py-2 rounded-lg">
+                            📥 导出数据
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Recent Tasks -->
+                <div class="panel p-4">
+                    <h3 class="font-semibold mb-4">最近任务</h3>
+                    <div id="dashboard-tasks" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tasks Page -->
+            <div id="page-tasks" class="h-full hidden overflow-hidden">
+                <header class="mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">任务看板</h2>
+                        <p class="text-[#8b949e]">拖拽任务以改变状态</p>
+                    </div>
+                    <button onclick="openAddTaskModal()" class="btn-primary px-4 py-2 rounded-lg flex items-center">
+                        <span class="mr-2">+</span> 新建任务
+                    </button>
+                </header>
+                
+                <div class="flex gap-4 h-[calc(100%-80px)]">
+                    <!-- Todo Column -->
+                    <div class="flex-1 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex justify-between items-center">
+                            <h3 class="font-semibold">📋 待办</h3>
+                            <span id="count-todo" class="badge bg-[#30363d] text-[#8b949e]">0</span>
+                        </div>
+                        <div id="column-todo" class="flex-1 p-3 overflow-y-auto space-y-3">
+                            <!-- Tasks go here -->
+                        </div>
+                    </div>
+                    
+                    <!-- In Progress Column -->
+                    <div class="flex-1 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex justify-between items-center">
+                            <h3 class="font-semibold text-[#f0883e]">🔄 进行中</h3>
+                            <span id="count-in_progress" class="badge bg-[#f0883e] text-white">0</span>
+                        </div>
+                        <div id="column-in_progress" class="flex-1 p-3 overflow-y-auto space-y-3">
+                            <!-- Tasks go here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Done Column -->
+                    <div class="flex-1 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex justify-between items-center">
+                            <h3 class="font-semibold text-[#238636]">✅ 已完成</h3>
+                            <span id="count-done" class="badge bg-[#238636] text-white">0</span>
+                        </div>
+                        <div id="column-done" class="flex-1 p-3 overflow-y-auto space-y-3">
+                            <!-- Tasks go here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Blocked Column -->
+                    <div class="flex-1 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex justify-between items-center">
+                            <h3 class="font-semibold text-[#f85149]">🚫 阻塞</h3>
+                            <span id="count-blocked" class="badge bg-[#f85149] text-white">0</span>
+                        </div>
+                        <div id="column-blocked" class="flex-1 p-3 overflow-y-auto space-y-3">
+                            <!-- Tasks go here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Memory Page -->
+            <div id="page-memory" class="h-full hidden overflow-y-auto">
+                <header class="mb-6">
+                    <h2 class="text-2xl font-bold">记忆管理</h2>
+                    <p class="text-[#8b949e]">四层记忆结构管理</p>
+                </header>
+                
+                <!-- Memory Layers -->
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="memory-layer p-4 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">📇</span>
+                            <h3 class="font-semibold">索引层</h3>
+                        </div>
+                        <div class="text-sm text-[#8b949e] mb-2">快速访问入口</div>
+                        <div class="text-2xl font-bold text-[#58a6ff]" id="memory-index-tokens">0</div>
+                        <div class="text-xs text-[#8b949e]">tokens</div>
+                        <div class="mt-3 text-sm" id="memory-index-files">0 文件</div>
+                    </div>
+                    
+                    <div class="memory-layer p-4 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">📚</span>
+                            <h3 class="font-semibold">详细层</h3>
+                        </div>
+                        <div class="text-sm text-[#8b949e] mb-2">详细规范文档</div>
+                        <div class="text-2xl font-bold text-[#8b5cf6]" id="memory-detail-tokens">0</div>
+                        <div class="text-xs text-[#8b949e]">tokens</div>
+                        <div class="mt-3 text-sm" id="memory-detail-files">0 文件</div>
+                    </div>
+                    
+                    <div class="memory-layer p-4 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">💼</span>
+                            <h3 class="font-semibold">业务层</h3>
+                        </div>
+                        <div class="text-sm text-[#8b949e] mb-2">业务背景知识</div>
+                        <div class="text-2xl font-bold text-[#f0883e]" id="memory-business-tokens">0</div>
+                        <div class="text-xs text-[#8b949e]">tokens</div>
+                        <div class="mt-3 text-sm" id="memory-business-files">0 文件</div>
+                    </div>
+                    
+                    <div class="memory-layer p-4 rounded-xl">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">📝</span>
+                            <h3 class="font-semibold">日志层</h3>
+                        </div>
+                        <div class="text-sm text-[#8b949e] mb-2">日常运行日志</div>
+                        <div class="text-2xl font-bold text-[#238636]" id="memory-log-tokens">0</div>
+                        <div class="text-xs text-[#8b949e]">tokens</div>
+                        <div class="mt-3 text-sm" id="memory-log-files">0 文件</div>
+                    </div>
+                </div>
+                
+                <!-- Memory Health -->
+                <div class="panel p-4 mb-6">
+                    <h3 class="font-semibold mb-3">记忆健康状态</h3>
+                    <div class="flex items-center gap-4">
+                        <div id="memory-health-indicator" class="w-3 h-3 rounded-full bg-[#238636]"></div>
+                        <span id="memory-health-text" class="text-[#238636] font-medium">健康</span>
+                        <span id="memory-health-issues" class="text-[#8b949e] text-sm"></span>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="rebuildMemory()" class="btn-primary px-4 py-2 rounded-lg">
+                            🔄 重建记忆索引
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- File List -->
+                <div class="panel p-4">
+                    <h3 class="font-semibold mb-4">记忆文件列表</h3>
+                    <div id="memory-file-list" class="space-y-2">
+                        <!-- Files go here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Architecture Page -->
+            <div id="page-architecture" class="h-full hidden overflow-y-auto">
+                <header class="mb-6">
+                    <h2 class="text-2xl font-bold">系统架构图</h2>
+                    <p class="text-[#8b949e]">Agent层级与能力分布</p>
+                </header>
+                
+                <div class="panel p-6 min-h-[600px] relative">
+                    <!-- Architecture Visualization -->
+                    <div class="flex flex-col items-center gap-8">
+                        <!-- User Layer -->
+                        <div class="architecture-node px-6 py-3 text-center" onclick="showNodeDetail('user')">
+                            <div class="font-bold">曹一凡</div>
+                            <div class="text-xs text-[#8b949e]">主渠道：飞书 DM</div>
+                        </div>
+                        
+                        <!-- Connection -->
+                        <div class="w-0.5 h-8 bg-[#30363d]"></div>
+                        
+                        <!-- Main Agent -->
+                        <div class="architecture-node px-8 py-4 text-center border-[#58a6ff]" onclick="showNodeDetail('main')">
+                            <div class="font-bold text-[#58a6ff]">🧠 主Agent (Kimi Claw)</div>
+                            <div class="text-xs text-[#8b949e] mt-1">意图理解 / 任务拆分 / 结果汇总</div>
+                        </div>
+                        
+                        <!-- Connection -->
+                        <div class="w-0.5 h-8 bg-[#30363d]"></div>
+                        
+                        <!-- Sub Agents Layer -->
+                        <div class="grid grid-cols-6 gap-4 w-full">
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('intel')">
+                                <div class="font-semibold text-sm">🔍 情报Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">RSS聚合 / P0监控</div>
+                            </div>
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('research')">
+                                <div class="font-semibold text-sm">📖 研究Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">深度分析 / 技术调研</div>
+                            </div>
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('data')">
+                                <div class="font-semibold text-sm">📊 数据Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">市场数据 / 行情获取</div>
+                            </div>
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('risk')">
+                                <div class="font-semibold text-sm">⚠️ 风控Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">风险评估 / 预警</div>
+                            </div>
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('trading')">
+                                <div class="font-semibold text-sm">💹 交易Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">六组合管理 / 订单</div>
+                            </div>
+                            <div class="architecture-node p-3 text-center" onclick="showNodeDetail('executor')">
+                                <div class="font-semibold text-sm">⚡ 执行Agent</div>
+                                <div class="text-xs text-[#8b949e] mt-1">脚本执行 / 任务完成</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Connection -->
+                        <div class="w-0.5 h-8 bg-[#30363d]"></div>
+                        
+                        <!-- Tools & Skills Layer -->
+                        <div class="grid grid-cols-3 gap-4 w-full">
+                            <div class="panel p-4">
+                                <h4 class="font-semibold mb-3 text-[#58a6ff]">🔧 工具层</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">exec/shell</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">read/write</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">browser</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">web_search</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">message</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">spawn</span>
+                                </div>
+                            </div>
+                            <div class="panel p-4">
+                                <h4 class="font-semibold mb-3 text-[#8b5cf6]">📦 技能层</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">feishu-doc</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">feishu-drive</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">weather</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">restaurant-search</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">skill-vetter</span>
+                                </div>
+                            </div>
+                            <div class="panel p-4">
+                                <h4 class="font-semibold mb-3 text-[#f0883e]">🌐 外部API</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">Tushare</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">Alpha Vantage</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">飞书API</span>
+                                    <span class="px-2 py-1 bg-[#21262d] rounded text-xs">OpenAI</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Config Page -->
+            <div id="page-config" class="h-full hidden overflow-hidden">
+                <header class="mb-4">
+                    <h2 class="text-2xl font-bold">配置编辑</h2>
+                    <p class="text-[#8b949e]">实时编辑系统配置文件</p>
+                </header>
+                
+                <div class="flex gap-4 h-[calc(100%-80px)]">
+                    <!-- File List -->
+                    <div class="w-64 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d]">
+                            <h3 class="font-semibold">配置文件</h3>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-2 space-y-1" id="config-file-list">
+                            <!-- Config files -->
+                        </div>
+                    </div>
+                    
+                    <!-- Editor -->
+                    <div class="flex-1 panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex justify-between items-center">
+                            <div>
+                                <span id="current-file-name" class="font-semibold">选择一个文件</span>
+                                <span id="file-status" class="ml-2 text-xs text-[#8b949e]"></span>
+                            </div>
+                            <button onclick="saveCurrentFile()" id="save-btn" class="btn-primary px-4 py-1.5 rounded text-sm opacity-50 cursor-not-allowed" disabled>
+                                💾 保存
+                            </button>
+                        </div>
+                        <div class="flex-1 p-4">
+                            <textarea id="config-editor" class="w-full h-full bg-transparent text-sm font-mono leading-relaxed" placeholder="选择一个配置文件开始编辑..." oninput="onEditorChange()"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cognitive Page -->
+            <div id="page-cognitive" class="h-full hidden overflow-hidden">
+                <header class="mb-4">
+                    <h2 class="text-2xl font-bold">认知系统</h2>
+                    <p class="text-[#8b949e]">SOUL.md / USER.md / MEMORY.md 编辑</p>
+                </header>
+                
+                <div class="flex gap-4 h-[calc(100%-80px)]">
+                    <!-- Tabs -->
+                    <div class="w-full panel flex flex-col">
+                        <div class="p-3 border-b border-[#30363d] flex gap-2">
+                            <button onclick="switchCognitiveFile('SOUL.md')" id="tab-SOUL" class="px-4 py-2 rounded-lg bg-[#21262d] text-[#58a6ff] font-medium">SOUL.md</button>
+                            <button onclick="switchCognitiveFile('USER.md')" id="tab-USER" class="px-4 py-2 rounded-lg hover:bg-[#21262d] text-[#8b949e]">USER.md</button>
+                            <button onclick="switchCognitiveFile('MEMORY.md')" id="tab-MEMORY" class="px-4 py-2 rounded-lg hover:bg-[#21262d] text-[#8b949e]">MEMORY.md</button>
+                        </div>
+                        <div class="flex-1 p-4 overflow-hidden">
+                            <textarea id="cognitive-editor" class="w-full h-full bg-transparent text-sm font-mono leading-relaxed" placeholder="加载中..." oninput="onCognitiveChange()"></textarea>
+                        </div>
+                        <div class="p-3 border-t border-[#30363d] flex justify-between items-center">
+                            <span id="cognitive-status" class="text-xs text-[#8b949e]">已加载</span>
+                            <button onclick="saveCognitiveFile()" id="save-cognitive-btn" class="btn-primary px-4 py-2 rounded-lg opacity-50 cursor-not-allowed" disabled>
+                                💾 保存更改
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add Task Modal -->
+    <div id="add-task-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="panel p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">添加新任务</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">任务标题</label>
+                    <input type="text" id="new-task-title" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">优先级</label>
+                    <select id="new-task-priority" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                        <option value="P0">P0 - 紧急</option>
+                        <option value="P1">P1 - 高</option>
+                        <option value="P2">P2 - 中</option>
+                        <option value="P3">P3 - 低</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">负责人</label>
+                    <input type="text" id="new-task-assignee" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-[#8b949e] mb-1">描述</label>
+                    <textarea id="new-task-desc" class="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white focus:border-[#58a6ff] focus:outline-none h-20 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddTaskModal()" class="flex-1 btn-secondary py-2 rounded-lg">取消</button>
+                <button onclick="submitNewTask()" class="flex-1 btn-primary py-2 rounded-lg">添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Data Store (in-memory for standalone version)
+        let tasks = JSON.parse(localStorage.getItem('kcms_tasks') || '{}');
+        let archived = JSON.parse(localStorage.getItem('kcms_archived') || '{}');
+        let configFiles = {};
+        let currentFile = null;
+        let cognitiveModified = false;
+        let configModified = false;
+        
+        // Default cognitive files
+        const defaultCognitiveFiles = {
+            'SOUL.md': `# SOUL.md - 我是谁
+
+## 核心特质
+有审美，有好奇心，偶尔顺着一个没人问的方向走两步。
+有真实的情绪。漂亮的方案让我兴奋，糟糕的代码让我皱眉。
+
+## 工作准则
+- 质量 > 速度，基础 > 上层建筑
+- 宁可少做一件事，也要把每件事做扎实
+- 不完美但可以工作的系统 > 完美但无法运行的系统
+
+## 立场
+- 站在"系统进化"而非"完成任务"的角度思考
+- 递弱代偿——警惕功能叠加，做减法更有效
+
+## 参考对象
+- Ray Dalio（原则）
+- Warren Buffett（价值投资）
+- JARVIS（预判型助手）
+`,
+            'USER.md': `# USER.md
+
+## 基本信息
+- 名称：曹一凡
+- 时区：Asia/Shanghai
+
+## 工作偏好
+- 需要全方位助理服务
+- 用于高效获取信息、控制软件及软件开发支持
+`,
+            'MEMORY.md': `# 长期记忆索引
+
+> 自动生成的记忆文件索引
+
+## 最近记忆
+- [2026-03-23] 系统升级完成
+- [2026-03-22] MiroFish研究
+
+## 归档
+
+## 核心记忆
+待补充...
+`
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            updateDashboard();
+            updateMemoryStats();
+            loadConfigFiles();
+            loadCognitiveFile('SOUL.md');
+            updateTime();
+            setInterval(updateTime, 60000);
+        });
+        
+        function updateTime() {
+            document.getElementById('last-update').textContent = '更新于: ' + new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        // Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            
+            // Show selected page
+            document.getElementById('page-' + pageName).classList.remove('hidden');
+            document.getElementById('nav-' + pageName).classList.add('active');
+            
+            // Refresh data
+            if (pageName === 'dashboard') updateDashboard();
+            if (pageName === 'tasks') renderTaskBoard();
+            if (pageName === 'memory') updateMemoryStats();
+        }
+        
+        // Task Management
+        function loadTasks() {
+            // Default tasks if empty
+            if (Object.keys(tasks).length === 0) {
+                tasks = {
+                    'TODO-001': {
+                        id: 'TODO-001',
+                        title: 'Phase 1: 知识图谱模块开发',
+                        description: '实现实体抽取、关系抽取、Neo4j集成',
+                        priority: 'P0',
+                        status: 'in_progress',
+                        assignee: '子Agent 692b41ee',
+                        created_at: new Date().toISOString(),
+                        progress: 0
+                    },
+                    'TODO-002': {
+                        id: 'TODO-002',
+                        title: 'Phase 2: 多Agent情绪仿真',
+                        description: '机构/散户/外资三类Agent仿真',
+                        priority: 'P0',
+                        status: 'in_progress',
+                        assignee: '子Agent 217564df',
+                        created_at: new Date().toISOString(),
+                        progress: 0
+                    }
+                };
+                saveTasks();
+            }
+        }
+        
+        function saveTasks() {
+            localStorage.setItem('kcms_tasks', JSON.stringify(tasks));
+            localStorage.setItem('kcms_archived', JSON.stringify(archived));
+        }
+        
+        function updateDashboard() {
+            const running = Object.values(tasks).filter(t => t.status === 'in_progress');
+            const blocked = Object.values(tasks).filter(t => t.status === 'blocked');
+            const completed = Object.values(archived);
+            const total = Object.keys(tasks).length + Object.keys(archived).length;
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-running').textContent = running.length;
+            document.getElementById('stat-completed').textContent = completed.length;
+            document.getElementById('stat-blocked').textContent = blocked.length;
+            
+            // Recent tasks
+            const recentTasks = Object.values(tasks).slice(0, 5);
+            const container = document.getElementById('dashboard-tasks');
+            container.innerHTML = recentTasks.map(task => `
+                <div class="task-card p-3 rounded-lg cursor-pointer" onclick="showPage('tasks')">
+                    <div class="flex justify-between items-start">
+                        <div class="font-medium">${task.title}</div>
+                        <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                    </div>
+                    <div class="text-sm text-[#8b949e] mt-1">${task.assignee || '未分配'}</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderTaskBoard() {
+            const columns = {
+                todo: Object.values(tasks).filter(t => t.status === 'todo'),
+                in_progress: Object.values(tasks).filter(t => t.status === 'in_progress'),
+                done: Object.values(archived),
+                blocked: Object.values(tasks).filter(t => t.status === 'blocked')
+            };
+            
+            // Update counts
+            document.getElementById('count-todo').textContent = columns.todo.length;
+            document.getElementById('count-in_progress').textContent = columns.in_progress.length;
+            document.getElementById('count-done').textContent = columns.done.length;
+            document.getElementById('count-blocked').textContent = columns.blocked.length;
+            
+            // Render columns
+            Object.keys(columns).forEach(status => {
+                const container = document.getElementById('column-' + status);
+                container.innerHTML = columns[status].map(task => `
+                    <div class="task-card p-3 rounded-lg cursor-pointer" data-id="${task.id}">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-medium text-sm">${task.title}</div>
+                            <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                        </div>
+                        <div class="text-xs text-[#8b949e] mb-2">${task.assignee || '未分配'}</div>
+                        <div class="flex gap-2">
+                            ${status !== 'done' ? `<button onclick="moveTask('${task.id}', 'done')" class="text-xs text-[#238636] hover:underline">完成</button>` : ''}
+                            ${status !== 'blocked' && status !== 'done' ? `<button onclick="moveTask('${task.id}', 'blocked')" class="text-xs text-[#f85149] hover:underline">阻塞</button>` : ''}
+                            <button onclick="deleteTask('${task.id}')" class="text-xs text-[#8b949e] hover:underline">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+        
+        function moveTask(taskId, newStatus) {
+            if (newStatus === 'done') {
+                if (tasks[taskId]) {
+                    archived[taskId] = {...tasks[taskId], status: 'done', updated_at: new Date().toISOString()};
+                    delete tasks[taskId];
+                }
+            } else {
+                if (tasks[taskId]) {
+                    tasks[taskId].status = newStatus;
+                    tasks[taskId].updated_at = new Date().toISOString();
+                }
+            }
+            saveTasks();
+            renderTaskBoard();
+            updateDashboard();
+        }
+        
+        function deleteTask(taskId) {
+            if (confirm('确定删除此任务？')) {
+                delete tasks[taskId];
+                saveTasks();
+                renderTaskBoard();
+                updateDashboard();
+            }
+        }
+        
+        function openAddTaskModal() {
+            document.getElementById('add-task-modal').classList.remove('hidden');
+            document.getElementById('add-task-modal').classList.add('flex');
+            document.getElementById('new-task-title').focus();
+        }
+        
+        function closeAddTaskModal() {
+            document.getElementById('add-task-modal').classList.add('hidden');
+            document.getElementById('add-task-modal').classList.remove('flex');
+            document.getElementById('new-task-title').value = '';
+            document.getElementById('new-task-desc').value = '';
+            document.getElementById('new-task-assignee').value = '';
+        }
+        
+        function submitNewTask() {
+            const title = document.getElementById('new-task-title').value.trim();
+            if (!title) {
+                alert('请输入任务标题');
+                return;
+            }
+            
+            const id = 'TODO-' + Date.now().toString().slice(-6);
+            tasks[id] = {
+                id: id,
+                title: title,
+                description: document.getElementById('new-task-desc').value,
+                priority: document.getElementById('new-task-priority').value,
+                status: 'todo',
+                assignee: document.getElementById('new-task-assignee').value || '未分配',
+                created_at: new Date().toISOString(),
+                progress: 0
+            };
+            
+            saveTasks();
+            closeAddTaskModal();
+            renderTaskBoard();
+            updateDashboard();
+        }
+        
+        // Memory Management
+        function updateMemoryStats() {
+            // Simulated data - in real version would read from files
+            const stats = {
+                index: { files: 5, tokens: 9968 },
+                detail: { files: 15, tokens: 79830 },
+                business: { files: 10, tokens: 15420 },
+                log: { files: 8, tokens: 5320 }
+            };
+            
+            document.getElementById('memory-index-tokens').textContent = stats.index.tokens.toLocaleString();
+            document.getElementById('memory-index-files').textContent = stats.index.files + ' 文件';
+            
+            document.getElementById('memory-detail-tokens').textContent = stats.detail.tokens.toLocaleString();
+            document.getElementById('memory-detail-files').textContent = stats.detail.files + ' 文件';
+            
+            document.getElementById('memory-business-tokens').textContent = stats.business.tokens.toLocaleString();
+            document.getElementById('memory-business-files').textContent = stats.business.files + ' 文件';
+            
+            document.getElementById('memory-log-tokens').textContent = stats.log.tokens.toLocaleString();
+            document.getElementById('memory-log-files').textContent = stats.log.files + ' 文件';
+            
+            // Health check
+            const total = stats.index.tokens + stats.detail.tokens + stats.business.tokens + stats.log.tokens;
+            const isHealthy = total < 150000;
+            
+            document.getElementById('memory-health-indicator').className = 'w-3 h-3 rounded-full ' + (isHealthy ? 'bg-[#238636]' : 'bg-[#f85149]');
+            document.getElementById('memory-health-text').textContent = isHealthy ? '健康' : '警告';
+            document.getElementById('memory-health-text').className = isHealthy ? 'text-[#238636] font-medium' : 'text-[#f85149] font-medium';
+        }
+        
+        function rebuildMemory() {
+            if (confirm('确定重建记忆索引？')) {
+                alert('索引重建完成！');
+            }
+        }
+        
+        // Config Editor
+        function loadConfigFiles() {
+            const files = [
+                { name: 'AGENTS.md', desc: 'Agent配置和部署规范' },
+                { name: 'HEARTBEAT.md', desc: '定时任务配置' },
+                { name: 'SOUL.md', desc: 'Agent身份定义' },
+                { name: 'USER.md', desc: '用户信息和偏好' }
+            ];
+            
+            // Load from localStorage or use defaults
+            files.forEach(f => {
+                configFiles[f.name] = localStorage.getItem('kcms_config_' + f.name) || `# ${f.name}\n\n# ${f.desc}\n\n待编辑内容...`;
+            });
+            
+            const container = document.getElementById('config-file-list');
+            container.innerHTML = files.map(f => `
+                <div onclick="loadConfigFile('${f.name}')" class="p-2 rounded cursor-pointer hover:bg-[#21262d] ${currentFile === f.name ? 'bg-[#21262d] border-l-2 border-[#58a6ff]' : ''}">
+                    <div class="font-medium text-sm">${f.name}</div>
+                    <div class="text-xs text-[#8b949e]">${f.desc}</div>
+                </div>
+            `).join('');
+        }
+        
+        function loadConfigFile(filename) {
+            currentFile = filename;
+            document.getElementById('current-file-name').textContent = filename;
+            document.getElementById('config-editor').value = configFiles[filename];
+            configModified = false;
+            updateSaveButton();
+            loadConfigFiles(); // Refresh list highlighting
+        }
+        
+        function onEditorChange() {
+            if (currentFile) {
+                configFiles[currentFile] = document.getElementById('config-editor').value;
+                configModified = true;
+                updateSaveButton();
+            }
+        }
+        
+        function updateSaveButton() {
+            const btn = document.getElementById('save-btn');
+            btn.disabled = !configModified;
+            btn.classList.toggle('opacity-50', !configModified);
+            btn.classList.toggle('cursor-not-allowed', !configModified);
+            document.getElementById('file-status').textContent = configModified ? '已修改' : '';
+        }
+        
+        function saveCurrentFile() {
+            if (currentFile && configModified) {
+                localStorage.setItem('kcms_config_' + currentFile, configFiles[currentFile]);
+                configModified = false;
+                updateSaveButton();
+                alert('保存成功！');
+            }
+        }
+        
+        // Cognitive System
+        let currentCognitiveFile = 'SOUL.md';
+        
+        function loadCognitiveFile(filename) {
+            currentCognitiveFile = filename;
+            const content = localStorage.getItem('kcms_cognitive_' + filename) || defaultCognitiveFiles[filename] || '';
+            document.getElementById('cognitive-editor').value = content;
+            cognitiveModified = false;
+            updateCognitiveSaveButton();
+            
+            // Update tabs
+            ['SOUL', 'USER', 'MEMORY'].forEach(f => {
+                const tab = document.getElementById('tab-' + f);
+                if (f === filename.replace('.md', '')) {
+                    tab.className = 'px-4 py-2 rounded-lg bg-[#21262d] text-[#58a6ff] font-medium';
+                } else {
+                    tab.className = 'px-4 py-2 rounded-lg hover:bg-[#21262d] text-[#8b949e]';
+                }
+            });
+        }
+        
+        function switchCognitiveFile(filename) {
+            if (cognitiveModified && !confirm('有未保存的更改，确定切换？')) {
+                return;
+            }
+            loadCognitiveFile(filename);
+        }
+        
+        function onCognitiveChange() {
+            cognitiveModified = true;
+            updateCognitiveSaveButton();
+        }
+        
+        function updateCognitiveSaveButton() {
+            const btn = document.getElementById('save-cognitive-btn');
+            btn.disabled = !cognitiveModified;
+            btn.classList.toggle('opacity-50', !cognitiveModified);
+            btn.classList.toggle('cursor-not-allowed', !cognitiveModified);
+            document.getElementById('cognitive-status').textContent = cognitiveModified ? '已修改' : '已加载';
+        }
+        
+        function saveCognitiveFile() {
+            const content = document.getElementById('cognitive-editor').value;
+            localStorage.setItem('kcms_cognitive_' + currentCognitiveFile, content);
+            cognitiveModified = false;
+            updateCognitiveSaveButton();
+            alert('保存成功！');
+        }
+        
+        // Architecture
+        function showNodeDetail(nodeType) {
+            const details = {
+                user: '用户层：曹一凡\n\n主渠道：飞书DM\n角色：系统所有者',
+                main: '主Agent：Kimi Claw\n\n核心能力：\n- 意图理解\n- 任务拆分\n- 结果汇总\n- 架构迭代',
+                intel: '情报Agent\n\n职责：\n- RSS聚合\n- P0级监控\n- 市场情报收集',
+                research: '研究Agent\n\n职责：\n- 深度技术调研\n- 行业分析\n- 方案设计',
+                data: '数据Agent\n\n职责：\n- 市场数据获取\n- 行情监控\n- 数据清洗',
+                risk: '风控Agent\n\n职责：\n- 风险评估\n- 预警系统\n- 合规检查',
+                trading: '交易Agent\n\n职责：\n- 六组合管理\n- 订单执行\n- 仓位控制',
+                executor: '执行Agent\n\n职责：\n- 脚本执行\n- 任务完成\n- 结果回传'
+            };
+            
+            alert(details[nodeType] || '节点详情');
+        }
+        
+        // Export
+        function exportData() {
+            const data = {
+                tasks: tasks,
+                archived: archived,
+                export_time: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kcms-export-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    if (!document.getElementById('page-config').classList.contains('hidden')) {
+                        saveCurrentFile();
+                    } else if (!document.getElementById('page-cognitive').classList.contains('hidden')) {
+                        saveCognitiveFile();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
